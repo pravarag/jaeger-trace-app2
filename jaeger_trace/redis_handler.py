@@ -14,10 +14,11 @@ listen = ['default']
 app=Flask(__name__)
 tracer = init_tracer('redis-handler')
 conn_redis = redis.Redis(host='localhost', port=6379, db=0)
-
+count = 0
 
 @app.route('/db')
 def redis_handler():
+	global count
 	span_ctx = tracer.extract(Format.HTTP_HEADERS, request.headers)
 	span_tags = {tags.SPAN_KIND: tags.SPAN_KIND_RPC_SERVER}
 	with tracer.start_active_span('redis-handler-span', child_of=span_ctx, tags=span_tags):
@@ -26,6 +27,7 @@ def redis_handler():
 		food_item = request.headers.get('Order-Item')
 		conn_redis.set('Order-Item', str(food_item))
 		call_redis_display(8083)
+		count ++
 		return "redis_handler completes....."
 
 
