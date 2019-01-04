@@ -6,7 +6,7 @@ from tracer import init_tracer
 from opentracing.ext import tags
 from opentracing.propagation import Format
 import requests
-
+import os
 
 
 listen = ['default']
@@ -30,7 +30,8 @@ def redis_handler():
 
 
 def call_redis_display(port):
-	url = "http://127.0.0.1:{}/display".format(port)
+	ip = str(os.getenv('IP'))
+	url = 'http://'+ip+':{}/db'.format(port)
 	span = tracer.active_span
 	span.set_tag(tags.HTTP_METHOD, 'GET')
 	span.set_tag(tags.HTTP_URL, url)
