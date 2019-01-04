@@ -13,7 +13,9 @@ listen = ['default']
 
 app=Flask(__name__)
 tracer = init_tracer('redis-handler')
-conn_redis = redis.Redis(host='localhost', port=6379, db=0)
+redis_host = str(os.getenv('REDIS_HOST'))
+#redis_port = str(os.getenv('REDIS_PORT'))
+init_redis = redis.StrictRedis(host=redis_host, port=6379, db=0)
 
 
 @app.route('/db')
