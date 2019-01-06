@@ -14,9 +14,10 @@ listen = ['default']
 app=Flask(__name__)
 tracer = init_tracer('redis-handler')
 redis_host = str(os.getenv('REDIS_HOST'))
-#redis_port = str(os.getenv('REDIS_PORT'))
-init_redis = redis.StrictRedis(host=redis_host, port=6379, db=0)
+redis_port = str(os.getenv('REDIS_PORT'))
 
+conn_redis = redis.StrictRedis(host=redis_host, port=6379, db=0)
+#conn_redis = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 @app.route('/db')
 def redis_handler():
@@ -27,6 +28,7 @@ def redis_handler():
 		print(request.headers.get('Delivery-Guy'))
 		food_item = request.headers.get('Order-Item')
 		conn_redis.set('Order-Item', str(food_item))
+
 		call_redis_display(8083)
 		return "redis_handler completes....."
 
@@ -34,6 +36,7 @@ def redis_handler():
 def call_redis_display(port):
 	ip = str(os.getenv('IP'))
 	url = 'http://'+ip+':{}/db'.format(port)
+	#url = 'http://localhost:8083/'
 	span = tracer.active_span
 	span.set_tag(tags.HTTP_METHOD, 'GET')
 	span.set_tag(tags.HTTP_URL, url)
